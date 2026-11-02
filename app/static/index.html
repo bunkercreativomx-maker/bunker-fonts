@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bunker Fonts</title>
+<style>
+:root{--side:#131315;--side2:#1d1d21;--sidetx:#a9a9b2;--sidehi:#fff;--acc:#8b5cf6;--bg:#fff;--tx:#141414;--mut:#8a8a93;--line:#ececf0;--chip:#f3f3f6}
+body.dark{--bg:#0f0f11;--tx:#f2f2f2;--mut:#7d7d86;--line:#232328;--chip:#1c1c20}
+*{box-sizing:border-box}html,body{margin:0;height:100%}
+body{font:14px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;display:flex;background:var(--bg);color:var(--tx);overflow:hidden}
+aside{width:250px;flex:none;background:var(--side);color:var(--sidetx);display:flex;flex-direction:column;overflow:hidden}
+.brand{padding:18px 18px 10px;color:#fff;font-weight:700;letter-spacing:.2px;font-size:16px;display:flex;gap:8px;align-items:center}
+.brand b{background:var(--acc);color:#fff;border-radius:6px;padding:1px 7px}
+.nav{overflow:auto;flex:1;padding:0 10px 14px}
+.sec{font-size:11px;letter-spacing:.9px;text-transform:uppercase;color:#62626b;margin:16px 8px 6px;display:flex;justify-content:space-between;align-items:center}
+.sec button{background:none;border:0;color:#8c8c95;cursor:pointer;font-size:16px;line-height:1}
+.it{display:flex;justify-content:space-between;gap:8px;padding:7px 10px;border-radius:8px;cursor:pointer;white-space:nowrap}
+.it span:first-child{overflow:hidden;text-overflow:ellipsis}
+.it .n{color:#62626b;font-variant-numeric:tabular-nums}
+.it:hover{background:var(--side2)}.it.on{background:#2a2a30;color:var(--sidehi)}
+.foot{border-top:1px solid #222227;padding:10px 16px;font-size:12px;color:#77777f}
+.foot button{margin-top:6px;background:#26262b;color:#ddd;border:0;border-radius:6px;padding:5px 10px;cursor:pointer;font-size:12px}
+main{flex:1;display:flex;flex-direction:column;min-width:0}
+.bar{display:flex;gap:12px;align-items:center;padding:12px 20px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.bar input[type=search],.bar input.txt{border:1px solid var(--line);background:var(--chip);color:var(--tx);border-radius:8px;padding:8px 11px;font-size:14px;outline:none}
+.bar input[type=search]{width:220px}.bar input.txt{flex:1;min-width:200px}
+.bar input:focus{border-color:var(--acc)}
+.bar label{display:flex;gap:6px;align-items:center;color:var(--mut);font-size:13px;white-space:nowrap}
+input[type=range]{accent-color:var(--acc);width:150px}
+.ib{border:1px solid var(--line);background:var(--chip);color:var(--tx);border-radius:8px;padding:7px 10px;cursor:pointer}
+.head{padding:10px 20px;color:var(--mut);font-size:13px;display:flex;justify-content:space-between;align-items:center}
+.head .acts button{margin-left:6px}
+#list{flex:1;overflow:auto;padding:0 20px 40px}
+.row{border-bottom:1px solid var(--line);padding:14px 0 16px;cursor:pointer;content-visibility:auto;contain-intrinsic-size:auto 110px}
+.meta{display:flex;align-items:center;gap:10px;font-size:13px}
+.meta .nm{font-weight:600}
+.meta .sub{color:var(--mut)}
+.badge{font-size:11px;padding:1px 7px;border-radius:20px;background:var(--chip);color:var(--mut)}
+.badge.g{color:#2f7d32;background:#e8f5e9}.badge.m{color:#6d28d9;background:#f1ebff}
+body.dark .badge.g{background:#173018}body.dark .badge.m{background:#261a3d}
+.meta .r{margin-left:auto;display:flex;gap:4px;opacity:.6;transition:opacity .15s}
+.row:hover .meta .r,.meta .r .on{opacity:1}
+.row:hover .meta .r{opacity:1}
+.tb{border:0;background:none;cursor:pointer;font-size:16px;padding:2px 6px;border-radius:6px;color:var(--tx)}
+.tb:hover{background:var(--chip)}.tb.on{color:var(--acc)}
+.pv{margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.25;color:var(--tx);opacity:0;transition:opacity .2s}
+.pv.ok{opacity:1}
+.empty{padding:60px 0;text-align:center;color:var(--mut)}
+#more{height:40px}
+/* drawer */
+#dr{position:fixed;top:0;right:0;bottom:0;width:min(720px,100%);background:var(--bg);border-left:1px solid var(--line);box-shadow:-20px 0 60px #0002;transform:translateX(105%);transition:transform .25s ease;display:flex;flex-direction:column;z-index:5}
+#dr.open{transform:none}
+#dr .dh{padding:18px 22px;border-bottom:1px solid var(--line);display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+#dr h2{margin:0;font-size:20px;flex:1}
+#dr .db{overflow:auto;padding:6px 22px 30px;flex:1}
+.face{padding:12px 0;border-bottom:1px solid var(--line)}
+.face .fm{font-size:12px;color:var(--mut);display:flex;gap:10px}
+.face .pv{opacity:1;white-space:normal}
+.btn{border:1px solid var(--line);background:var(--chip);color:var(--tx);border-radius:8px;padding:7px 12px;cursor:pointer;font-size:13px;text-decoration:none}
+.btn.pri{background:var(--acc);border-color:var(--acc);color:#fff}
+.note{font-size:13px;background:var(--chip);border-radius:8px;padding:10px 12px;margin:12px 0;color:var(--mut)}
+.note a{color:var(--acc);cursor:pointer}
+.cl{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}
+.cl span{border:1px solid var(--line);border-radius:20px;padding:3px 10px;cursor:pointer;font-size:12px}
+.cl span.on{background:var(--acc);border-color:var(--acc);color:#fff}
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#222;color:#fff;padding:9px 16px;border-radius:8px;font-size:13px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:9}
+@media(max-width:760px){aside{position:fixed;z-index:6;height:100%;transform:translateX(-100%);transition:.2s}aside.open{transform:none}#menu{display:inline-block!important}}
+</style>
+</head>
+<body>
+<aside id="side">
+  <div class="brand"><b>B</b> Bunker Fonts</div>
+  <div class="nav" id="nav"></div>
+  <div class="foot"><div id="st">…</div><button onclick="reindex()">Reindexar ahora</button></div>
+</aside>
+<main>
+  <div class="bar">
+    <button id="menu" class="ib" style="display:none" onclick="side.classList.toggle('open')">☰</button>
+    <input type="search" id="q" placeholder="Buscar fuente…">
+    <input class="txt" id="txt" placeholder="Escribe tu texto de prueba…">
+    <label><input type="range" id="size" min="14" max="140" value="42"><span id="sz">42px</span></label>
+    <button class="ib" id="theme" title="Fondo claro/oscuro">◐</button>
+    <label title="Mostrar también tus copias de fuentes que ya están en Google"><input type="checkbox" id="dups"> duplicados</label>
+  </div>
+  <div class="head"><span id="count"></span><span class="acts" id="hacts"></span></div>
+  <div id="list"></div>
+</main>
+<div id="dr"><div class="dh" id="drh"></div><div class="db" id="drb"></div></div>
+<div id="toast"></div>
+<script>
+const $=s=>document.querySelector(s), api=(u,o)=>fetch(u,o).then(r=>{if(!r.ok)throw r;return r.json()});
+const DEF='The quick brown fox jumps over the lazy dog.';
+let S={view:'all',folder:'',category:'',coll:0,q:'',offset:0,total:0,loading:false,stats:null};
+const P=JSON.parse(localStorage.bf||'{}');
+$('#txt').value=P.txt||'';$('#size').value=P.size||42;$('#sz').textContent=$('#size').value+'px';
+if(P.dark)document.body.classList.add('dark');$('#dups').checked=!!P.dups;
+const save=()=>localStorage.bf=JSON.stringify({txt:$('#txt').value,size:$('#size').value,dark:document.body.classList.contains('dark'),dups:$('#dups').checked});
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const toast=m=>{const t=$('#toast');t.textContent=m;t.style.opacity=1;clearTimeout(t._t);t._t=setTimeout(()=>t.style.opacity=0,1800)};
+const CAT={SANS_SERIF:'Sans serif',SERIF:'Serif',DISPLAY:'Display',HANDWRITING:'Manuscrita',MONOSPACE:'Monoespaciada'};
+
+/* ---- font loading (lazy, unloads far away) ---- */
+const loaded=new Map();
+function ensureFont(el){const id=el.dataset.face;if(!id)return;
+  let L=loaded.get(id);
+  if(!L){const ff=new FontFace('bf_'+id,`url(/p/${id})`);L={ff,p:ff.load().then(f=>{document.fonts.add(f);return f})};loaded.set(id,L)}
+  L.p.then(()=>{el.style.fontFamily=`'bf_${id}', 'Adobe NotDef', sans-serif`;el.classList.add('ok')}).catch(()=>{el.textContent='⚠ no se pudo cargar esta fuente';el.classList.add('ok')});
+}
+const ioNear=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)ensureFont(e.target)}),{root:$('#list'),rootMargin:'800px'});
+const ioFar=new IntersectionObserver(es=>es.forEach(e=>{if(!e.isIntersecting){const id=e.target.dataset.face,L=loaded.get(id);
+  if(L&&document.querySelectorAll(`[data-face="${id}"]`).length<=1&&!$('#dr').classList.contains('open')){L.p.then(f=>document.fonts.delete(f)).catch(()=>{});loaded.delete(id);e.target.classList.remove('ok')}}}),{root:$('#list'),rootMargin:'4000px'});
+
+function pvText(it){if(it.mode==='sample')return it.sample||'—';const t=$('#txt').value||DEF;return t}
+function pvStyle(it){return `font-size:${$('#size').value}px;${it.mode==='caps'?'text-transform:uppercase;':''}`}
+
+/* ---- sidebar ---- */
+function navItem(lbl,n,act,on){return `<div class="it ${on?'on':''}" onclick="${act}"><span>${esc(lbl)}</span><span class="n">${n??''}</span></div>`}
+function renderNav(){const s=S.stats;if(!s)return;const v=S.view,f=S.folder,c=S.category,co=S.coll;
+  const top=!f&&!c&&!co;
+  let h=navItem('Todas',s.all,"go({view:'all'})",top&&v=='all')+navItem('Google',s.google,"go({view:'google'})",top&&v=='google')
+   +navItem('Mis fuentes',s.mine,"go({view:'mine'})",top&&v=='mine')+navItem('♥ Favoritas',s.favs,"go({view:'favs'})",top&&v=='favs')
+   +navItem('⚡ Activas',s.active,"go({view:'active'})",top&&v=='active')+navItem('Duplicados de Google',s.dups,"go({view:'dups'})",top&&v=='dups');
+  h+=`<div class="sec">Colecciones <button title="Nueva colección" onclick="newColl()">＋</button></div>`;
+  h+=s.collections.map(x=>navItem(x.name,x.n,`go({coll:${x.id}})`,co==x.id)).join('')||'<div class="it" style="color:#55555d" onclick="newColl()"><span>Nueva colección</span></div>';
+  h+=`<div class="sec">Carpetas</div>`+s.folders.map(x=>navItem(x.name,x.n,`go({folder:${esc(JSON.stringify(x.name))}})`,f==x.name)).join('');
+  if(s.categories.length)h+=`<div class="sec">Google por estilo</div>`+s.categories.map(x=>navItem(CAT[x.name]||x.name,x.n,`go({category:'${x.name}'})`,c==x.name)).join('');
+  $('#nav').innerHTML=h;
+  const st=s.state;$('#st').innerHTML=`${st.status=='listo'?'✓ Listo':'⏳ '+esc(st.status)}${st.detail?'<br>'+esc(st.detail):''}<br>Google: ${esc(st.last_google||'pendiente')}${st.error?'<br><span style="color:#f87171">'+esc(st.error)+'</span>':''}`;
+}
+async function loadStats(){S.stats=await api('/api/stats');renderNav();renderHead()}
+function go(o){Object.assign(S,{view:'all',folder:'',category:'',coll:0},o);$('#side').classList.remove('open');renderNav();reload()}
+async function newColl(){const n=prompt('Nombre de la colección (ej. Solace, Empire):');if(!n)return;await api('/api/collections',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({name:n})});loadStats();toast('Colección creada')}
+
+/* ---- list ---- */
+function title(){if(S.coll){const c=S.stats?.collections.find(x=>x.id==S.coll);return 'Colección: '+(c?.name||'')}
+  if(S.folder)return 'Carpeta: '+S.folder;if(S.category)return 'Google · '+(CAT[S.category]||S.category);
+  return {all:'Todas',google:'Google Fonts',mine:'Mis fuentes',favs:'Favoritas',active:'Activas (se instalan en tus PCs)',dups:'Tus copias de fuentes que ya están en Google (ocultas en "Todas")'}[S.view]}
+function renderHead(){$('#count').textContent=`${title()} · ${S.total.toLocaleString()} familias`;
+  $('#hacts').innerHTML=S.coll?`<button class="btn" onclick="collAct(1)">⚡ Activar colección</button><button class="btn" onclick="collAct(0)">Desactivar</button><button class="btn" onclick="delColl()">Borrar colección</button>`:''}
+async function collAct(on){const r=await api(`/api/collections/${S.coll}/activate?on=${on}`,{method:'POST'});toast(on?`${r.n} familias activadas`:'Colección desactivada');reload();loadStats()}
+async function delColl(){if(!confirm('¿Borrar la colección? (las fuentes no se borran)'))return;await api('/api/collections/'+S.coll,{method:'DELETE'});go({});loadStats()}
+function rowHTML(it){const badge=it.source=='google'?'<span class="badge g">Google</span>':(it.dup_google?'<span class="badge">copia · ya en Google</span>':'<span class="badge m">Mía</span>');
+  return `<div class="row" data-id="${it.id}" onclick="openFam('${it.id}')"><div class="meta"><span class="nm">${esc(it.family)}</span>${badge}<span class="sub">${it.n_faces} estilo${it.n_faces==1?'':'s'} · ${esc(it.formats)}${it.source=='local'?' · '+esc(it.folder):''}</span>
+   <span class="r" onclick="event.stopPropagation()"><button class="tb ${it.fav?'on':''}" title="Favorita" onclick="tog(this,'fav','${it.id}')">${it.fav?'♥':'♡'}</button><button class="tb ${it.act?'on':''}" title="Activar en mis PCs" onclick="tog(this,'active','${it.id}')">⚡</button><a class="tb" title="Descargar ZIP" href="/api/family/${it.id}/zip">⬇</a></span></div>
+   <div class="pv" data-face="${it.rep_face}" ${it.mode==='sample'?'data-mode="sample"':''} style="${pvStyle(it)}">${esc(pvText(it))}</div></div>`}
+let seq=0;
+async function reload(){S.offset=0;S.total=0;$('#list').innerHTML='<div id="more"></div>';$('#list').scrollTop=0;more.observe($('#more'));await page(++seq)}
+async function page(my){if(S.loading||(S.offset&&S.offset>=S.total))return;S.loading=true;
+  const p=new URLSearchParams({view:S.view,folder:S.folder,category:S.category,coll:S.coll||0,q:S.q,dups:$('#dups').checked?1:0,offset:S.offset,limit:60});
+  try{const r=await api('/api/families?'+p);if(my!==seq)return;S.total=r.total;S.offset+=r.items.length;
+    $('#more').insertAdjacentHTML('beforebegin',r.items.map(rowHTML).join(''));
+    if(!r.total)$('#more').insertAdjacentHTML('beforebegin','<div class="empty">Nada por aquí todavía.</div>');
+    document.querySelectorAll('.pv:not([data-w])').forEach(el=>{el.dataset.w=1;ioNear.observe(el);ioFar.observe(el)});
+    renderHead()}finally{S.loading=false}
+  const m=$('#more').getBoundingClientRect(),l=$('#list').getBoundingClientRect();if(my===seq&&m.top<l.bottom+800&&S.offset<S.total)page(my)}
+const more=new IntersectionObserver(es=>{if(es[0].isIntersecting)page(seq)},{root:$('#list'),rootMargin:'1200px'});
+async function tog(b,kind,id){const r=await api(`/api/${kind}/${id}`,{method:'POST'});b.classList.toggle('on',r.on);if(kind=='fav')b.textContent=r.on?'♥':'♡';
+  toast(kind=='fav'?(r.on?'Agregada a favoritas':'Quitada de favoritas'):(r.on?'Activada: se instalará en tus PCs':'Desactivada'));loadStats()}
+/* ---- drawer ---- */
+let curFam=null;
+async function openFam(id){const d=await api('/api/family/'+id);curFam=d;
+  const badge=d.source=='google'?'<span class="badge g">Google</span>':(d.dup_google?'<span class="badge">copia · ya en Google</span>':'<span class="badge m">Mía</span>');
+  $('#drh').innerHTML=`<h2>${esc(d.family)} ${badge}</h2><button class="btn ${d.fav?'pri':''}" onclick="dtog('fav')">${d.fav?'♥ Favorita':'♡ Favorita'}</button>
+   <button class="btn ${d.act?'pri':''}" onclick="dtog('active')">⚡ ${d.act?'Activa':'Activar'}</button><a class="btn" href="/api/family/${d.id}/zip">⬇ ZIP</a><button class="btn" onclick="closeDr()">✕</button>`;
+  let h='';
+  if(d.dup_google)h+=`<div class="note">Esta familia ya existe en Google Fonts. En "Todas" se muestra la versión oficial de Google. <a onclick="openFam('${d.google_id}')">Ver versión de Google →</a></div>`;
+  if(d.local_copies)h+=`<div class="note">También tienes una copia propia en tus carpetas. <a onclick="openFam('${d.local_copies}')">Ver tu copia →</a></div>`;
+  const cs=S.stats.collections;
+  h+=`<div class="cl">${cs.map(c=>`<span class="${d.collections.includes(c.id)?'on':''}" onclick="ctog(this,${c.id})">${esc(c.name)}</span>`).join('')}<span onclick="newColl().then(()=>openFam('${d.id}'))">＋ colección</span></div>`;
+  h+=d.faces.map(f=>`<div class="face"><div class="fm"><b>${esc(f.style)}</b><span>${f.weight}${f.italic?' itálica':''}${f.var?' · variable':''}</span><span>${esc(f.file)}</span><span>${(f.size/1024).toFixed(0)} KB</span>${f.dup_of?'<span>· copia exacta</span>':''}</div>
+    <div class="pv" data-face="${f.id}" style="font-size:${Math.max(28,$('#size').value*.9)}px;${f.mode=='caps'?'text-transform:uppercase':''}">${esc(f.mode=='sample'?(f.sample||'—'):($('#txt').value||DEF))}</div></div>`).join('');
+  if(d.faces[0]&&d.faces[0].mode!=='sample')h+=`<div class="face"><div class="fm"><b>Abecedario</b></div><div class="pv" data-face="${d.faces[0].id}" style="font-size:30px;white-space:normal;word-break:break-all">ABCDEFGHIJKLMNÑOPQRSTUVWXYZ<br>abcdefghijklmnñopqrstuvwxyz<br>0123456789 ¿?¡!&@$%áéíóú</div></div>`;
+  $('#drb').innerHTML=h;$('#dr').classList.add('open');
+  document.querySelectorAll('#drb .pv').forEach(el=>{const id=el.dataset.face;
+    const ff=new FontFace('bff_'+id,`url(/f/${id})`);ff.load().then(f=>{document.fonts.add(f);el.style.fontFamily=`'bff_${id}'`}).catch(()=>el.insertAdjacentHTML('beforeend',' ⚠'))})}
+function closeDr(){$('#dr').classList.remove('open')}
+async function dtog(k){await api(`/api/${k}/${curFam.id}`,{method:'POST'});openFam(curFam.id);loadStats();
+  const row=document.querySelector(`.row[data-id="${curFam.id}"]`);if(row)setTimeout(async()=>{const d=await api('/api/family/'+curFam.id);const b=row.querySelectorAll('.tb');b[0].classList.toggle('on',d.fav);b[0].textContent=d.fav?'♥':'♡';b[1].classList.toggle('on',d.act)},50)}
+async function ctog(el,cid){const r=await api(`/api/collections/${cid}/toggle/${curFam.id}`,{method:'POST'});el.classList.toggle('on',r.on);toast(r.on?'Agregada a la colección':'Quitada de la colección');loadStats()}
+document.addEventListener('keydown',e=>{if(e.key=='Escape')closeDr()});
+
+/* ---- controls ---- */
+let qt;$('#q').addEventListener('input',e=>{clearTimeout(qt);qt=setTimeout(()=>{S.q=e.target.value;reload()},250)});
+$('#txt').addEventListener('input',()=>{save();document.querySelectorAll('#list .pv:not([data-mode])').forEach(el=>el.textContent=$('#txt').value||DEF)});
+$('#size').addEventListener('input',e=>{$('#sz').textContent=e.target.value+'px';save();document.querySelectorAll('#list .pv').forEach(el=>el.style.fontSize=e.target.value+'px')});
+$('#theme').onclick=()=>{document.body.classList.toggle('dark');save()};
+$('#dups').onchange=()=>{save();reload()};
+async function reindex(){const r=await api('/api/reindex',{method:'POST'});toast(r.ok?'Reindexando…':r.msg);setTimeout(loadStats,1500)}
+loadStats().then(reload);setInterval(loadStats,15000);
+</script>
+</body>
+</html>
