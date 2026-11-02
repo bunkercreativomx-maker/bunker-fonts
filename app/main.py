@@ -111,7 +111,7 @@ def scan_file(path):
 def local_files():
     for d, dirs, files in os.walk(FONTS):
         rel = os.path.relpath(d, FONTS)
-        dirs[:] = [x for x in dirs if not x.startswith(".") and not (rel == "FontBase" and x == "Providers")]
+        dirs[:] = [x for x in dirs if not x.startswith((".", "_Duplicados")) and not (rel == "FontBase" and x == "Providers")]
         parts = [] if rel == "." else rel.split(os.sep)
         if parts and parts[0] == "FontBase":
             folder = parts[1] if len(parts) > 1 else "FontBase"
