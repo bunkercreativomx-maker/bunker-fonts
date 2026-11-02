@@ -64,6 +64,15 @@ body.dark .badge.g{background:#173018}body.dark .badge.m{background:#261a3d}
 .cl{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}
 .cl span{border:1px solid var(--line);border-radius:20px;padding:3px 10px;cursor:pointer;font-size:12px}
 .cl span.on{background:var(--acc);border-color:var(--acc);color:#fff}
+.sw{width:36px;height:20px;border-radius:20px;border:0;background:#cfcfd6;position:relative;cursor:pointer;flex:none;transition:background .15s;vertical-align:middle}
+body.dark .sw{background:#3a3a42}
+.sw::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 2px #0003;transition:transform .15s}
+.sw.on{background:#22c55e!important}.sw.on::after{transform:translateX(16px)}
+.swl{display:inline-flex;gap:8px;align-items:center;font-size:13px;cursor:pointer}
+#modal{position:fixed;inset:0;background:#0007;display:none;place-items:center;z-index:8}#modal.open{display:grid}
+#modal form{background:var(--bg);color:var(--tx);padding:24px;border-radius:12px;width:min(380px,92vw);display:grid;gap:12px}
+#modal input{border:1px solid var(--line);background:var(--chip);color:var(--tx);border-radius:8px;padding:10px;font-size:14px}
+#modal p{margin:0;color:var(--mut);font-size:13px}
 #toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#222;color:#fff;padding:9px 16px;border-radius:8px;font-size:13px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:9}
 @media(max-width:760px){aside{position:fixed;z-index:6;height:100%;transform:translateX(-100%);transition:.2s}aside.open{transform:none}#menu{display:inline-block!important}}
 </style>
@@ -72,7 +81,7 @@ body.dark .badge.g{background:#173018}body.dark .badge.m{background:#261a3d}
 <aside id="side">
   <div class="brand"><b>B</b> Bunker Fonts</div>
   <div class="nav" id="nav"></div>
-  <div class="foot"><div id="st">…</div><button onclick="reindex()">Reindexar ahora</button></div>
+  <div class="foot"><div id="ag"></div><div id="st">…</div><button onclick="reindex()">Reindexar ahora</button> <button id="pwb" style="display:none" onclick="pwOpen()">🔒 Acceso fuera de casa</button></div>
 </aside>
 <main>
   <div class="bar">
@@ -88,6 +97,11 @@ body.dark .badge.g{background:#173018}body.dark .badge.m{background:#261a3d}
 </main>
 <div id="dr"><div class="dh" id="drh"></div><div class="db" id="drb"></div></div>
 <div id="toast"></div>
+<div id="modal"><form onsubmit="pwSave(event)"><b>Contraseña para entrar desde fuera de casa</b>
+<p>En casa o con Tailscale no se pide. Desde internet sí. Mínimo 8 caracteres.</p>
+<input type="password" id="pw1" placeholder="Contraseña nueva" autocomplete="new-password">
+<input type="password" id="pw2" placeholder="Repítela" autocomplete="new-password">
+<div style="display:flex;gap:8px;justify-content:flex-end"><button type="button" class="btn" onclick="modal.classList.remove('open')">Cancelar</button><button class="btn pri">Guardar</button></div></form></div>
 <script>
 const $=s=>document.querySelector(s), api=(u,o)=>fetch(u,o).then(r=>{if(!r.ok)throw r;return r.json()});
 const DEF='The quick brown fox jumps over the lazy dog.';
@@ -120,7 +134,7 @@ function renderNav(){const s=S.stats;if(!s)return;const v=S.view,f=S.folder,c=S.
   const top=!f&&!c&&!co;
   let h=navItem('Todas',s.all,"go({view:'all'})",top&&v=='all')+navItem('Google',s.google,"go({view:'google'})",top&&v=='google')
    +navItem('Mis fuentes',s.mine,"go({view:'mine'})",top&&v=='mine')+navItem('♥ Favoritas',s.favs,"go({view:'favs'})",top&&v=='favs')
-   +navItem('⚡ Activas',s.active,"go({view:'active'})",top&&v=='active')+navItem('Duplicados de Google',s.dups,"go({view:'dups'})",top&&v=='dups');
+   +navItem('● Activas',s.active,"go({view:'active'})",top&&v=='active')+navItem('Duplicados de Google',s.dups,"go({view:'dups'})",top&&v=='dups');
   h+=`<div class="sec">Colecciones <button title="Nueva colección" onclick="newColl()">＋</button></div>`;
   h+=s.collections.map(x=>navItem(x.name,x.n,`go({coll:${x.id}})`,co==x.id)).join('')||'<div class="it" style="color:#55555d" onclick="newColl()"><span>Nueva colección</span></div>';
   h+=`<div class="sec">Carpetas</div>`+s.folders.map(x=>navItem(x.name,x.n,`go({folder:${esc(JSON.stringify(x.name))}})`,f==x.name)).join('');
@@ -138,11 +152,11 @@ function title(){if(S.coll){const c=S.stats?.collections.find(x=>x.id==S.coll);r
   return {all:'Todas',google:'Google Fonts',mine:'Mis fuentes',favs:'Favoritas',active:'Activas (se instalan en tus PCs)',dups:'Tus copias de fuentes que ya están en Google (ocultas en "Todas")'}[S.view]}
 function renderHead(){$('#count').textContent=`${title()} · ${S.total.toLocaleString()} familias`;
   $('#hacts').innerHTML=S.coll?`<button class="btn" onclick="collAct(1)">⚡ Activar colección</button><button class="btn" onclick="collAct(0)">Desactivar</button><button class="btn" onclick="delColl()">Borrar colección</button>`:''}
-async function collAct(on){const r=await api(`/api/collections/${S.coll}/activate?on=${on}`,{method:'POST'});toast(on?`${r.n} familias activadas`:'Colección desactivada');reload();loadStats()}
+async function collAct(on){const r=await api(`/api/collections/${S.coll}/activate?on=${on}`,{method:'POST'});agentSync();toast(on?`${r.n} familias activadas`:'Colección desactivada');reload();loadStats()}
 async function delColl(){if(!confirm('¿Borrar la colección? (las fuentes no se borran)'))return;await api('/api/collections/'+S.coll,{method:'DELETE'});go({});loadStats()}
 function rowHTML(it){const badge=it.source=='google'?'<span class="badge g">Google</span>':(it.dup_google?'<span class="badge">copia · ya en Google</span>':'<span class="badge m">Mía</span>');
   return `<div class="row" data-id="${it.id}" onclick="openFam('${it.id}')"><div class="meta"><span class="nm">${esc(it.family)}</span>${badge}<span class="sub">${it.n_faces} estilo${it.n_faces==1?'':'s'} · ${esc(it.formats)}${it.source=='local'?' · '+esc(it.folder):''}</span>
-   <span class="r" onclick="event.stopPropagation()"><button class="tb ${it.fav?'on':''}" title="Favorita" onclick="tog(this,'fav','${it.id}')">${it.fav?'♥':'♡'}</button><button class="tb ${it.act?'on':''}" title="Activar en mis PCs" onclick="tog(this,'active','${it.id}')">⚡</button><a class="tb" title="Descargar ZIP" href="/api/family/${it.id}/zip">⬇</a></span></div>
+   <span class="r" onclick="event.stopPropagation()"><button class="tb ${it.fav?'on':''}" title="Favorita" onclick="tog(this,'fav','${it.id}')">${it.fav?'♥':'♡'}</button><button class="sw ${it.act?'on':''}" title="Activar en mis PCs" onclick="tog(this,'active','${it.id}')"></button><a class="tb" title="Descargar ZIP" href="/api/family/${it.id}/zip">⬇</a></span></div>
    <div class="pv" data-face="${it.rep_face}" ${it.mode==='sample'?'data-mode="sample"':''} style="${pvStyle(it)}">${esc(pvText(it))}</div></div>`}
 let seq=0;
 async function reload(){S.offset=0;S.total=0;$('#list').innerHTML='<div id="more"></div>';$('#list').scrollTop=0;more.observe($('#more'));await page(++seq)}
@@ -155,14 +169,15 @@ async function page(my){if(S.loading||(S.offset&&S.offset>=S.total))return;S.loa
     renderHead()}finally{S.loading=false}
   const m=$('#more').getBoundingClientRect(),l=$('#list').getBoundingClientRect();if(my===seq&&m.top<l.bottom+800&&S.offset<S.total)page(my)}
 const more=new IntersectionObserver(es=>{if(es[0].isIntersecting)page(seq)},{root:$('#list'),rootMargin:'1200px'});
-async function tog(b,kind,id){const r=await api(`/api/${kind}/${id}`,{method:'POST'});b.classList.toggle('on',r.on);if(kind=='fav')b.textContent=r.on?'♥':'♡';
-  toast(kind=='fav'?(r.on?'Agregada a favoritas':'Quitada de favoritas'):(r.on?'Activada: se instalará en tus PCs':'Desactivada'));loadStats()}
+function agentSync(){try{window.bunkerAgent&&window.bunkerAgent.sync()}catch(e){}}
+async function tog(b,kind,id){const r=await api(`/api/${kind}/${id}`,{method:'POST'});if(kind=='active')agentSync();b.classList.toggle('on',r.on);if(kind=='fav')b.textContent=r.on?'♥':'♡';
+  toast(kind=='fav'?(r.on?'Agregada a favoritas':'Quitada de favoritas'):(r.on?'Activada en tus PCs':'Desactivada'));loadStats()}
 /* ---- drawer ---- */
 let curFam=null;
 async function openFam(id){const d=await api('/api/family/'+id);curFam=d;
   const badge=d.source=='google'?'<span class="badge g">Google</span>':(d.dup_google?'<span class="badge">copia · ya en Google</span>':'<span class="badge m">Mía</span>');
   $('#drh').innerHTML=`<h2>${esc(d.family)} ${badge}</h2><button class="btn ${d.fav?'pri':''}" onclick="dtog('fav')">${d.fav?'♥ Favorita':'♡ Favorita'}</button>
-   <button class="btn ${d.act?'pri':''}" onclick="dtog('active')">⚡ ${d.act?'Activa':'Activar'}</button><a class="btn" href="/api/family/${d.id}/zip">⬇ ZIP</a><button class="btn" onclick="closeDr()">✕</button>`;
+   <span class="swl" onclick="dtog('active')"><button class="sw ${d.act?'on':''}"></button>${d.act?'Activa':'Activar'}</span><a class="btn" href="/api/family/${d.id}/zip">⬇ ZIP</a><button class="btn" onclick="closeDr()">✕</button>`;
   let h='';
   if(d.dup_google)h+=`<div class="note">Esta familia ya existe en Google Fonts. En "Todas" se muestra la versión oficial de Google. <a onclick="openFam('${d.google_id}')">Ver versión de Google →</a></div>`;
   if(d.local_copies)h+=`<div class="note">También tienes una copia propia en tus carpetas. <a onclick="openFam('${d.local_copies}')">Ver tu copia →</a></div>`;
@@ -175,8 +190,8 @@ async function openFam(id){const d=await api('/api/family/'+id);curFam=d;
   document.querySelectorAll('#drb .pv').forEach(el=>{const id=el.dataset.face;
     const ff=new FontFace('bff_'+id,`url(/f/${id})`);ff.load().then(f=>{document.fonts.add(f);el.style.fontFamily=`'bff_${id}'`}).catch(()=>el.insertAdjacentHTML('beforeend',' ⚠'))})}
 function closeDr(){$('#dr').classList.remove('open')}
-async function dtog(k){await api(`/api/${k}/${curFam.id}`,{method:'POST'});openFam(curFam.id);loadStats();
-  const row=document.querySelector(`.row[data-id="${curFam.id}"]`);if(row)setTimeout(async()=>{const d=await api('/api/family/'+curFam.id);const b=row.querySelectorAll('.tb');b[0].classList.toggle('on',d.fav);b[0].textContent=d.fav?'♥':'♡';b[1].classList.toggle('on',d.act)},50)}
+async function dtog(k){await api(`/api/${k}/${curFam.id}`,{method:'POST'});if(k=='active')agentSync();openFam(curFam.id);loadStats();
+  const row=document.querySelector(`.row[data-id="${curFam.id}"]`);if(row)setTimeout(async()=>{const d=await api('/api/family/'+curFam.id);const b=row.querySelectorAll('.tb');b[0].classList.toggle('on',d.fav);b[0].textContent=d.fav?'♥':'♡';row.querySelector('.sw').classList.toggle('on',d.act)},50)}
 async function ctog(el,cid){const r=await api(`/api/collections/${cid}/toggle/${curFam.id}`,{method:'POST'});el.classList.toggle('on',r.on);toast(r.on?'Agregada a la colección':'Quitada de la colección');loadStats()}
 document.addEventListener('keydown',e=>{if(e.key=='Escape')closeDr()});
 
@@ -187,6 +202,13 @@ $('#size').addEventListener('input',e=>{$('#sz').textContent=e.target.value+'px'
 $('#theme').onclick=()=>{document.body.classList.toggle('dark');save()};
 $('#dups').onchange=()=>{save();reload()};
 async function reindex(){const r=await api('/api/reindex',{method:'POST'});toast(r.ok?'Reindexando…':r.msg);setTimeout(loadStats,1500)}
+function pwOpen(){pw1.value=pw2.value='';modal.classList.add('open');pw1.focus()}
+async function pwSave(e){e.preventDefault();if(pw1.value!==pw2.value)return toast('No coinciden');
+  const r=await fetch('/api/auth/set',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({password:pw1.value})});
+  const j=await r.json().catch(()=>({}));if(r.ok){modal.classList.remove('open');toast('Contraseña guardada');authCheck()}else toast(j.detail||'Error')}
+async function authCheck(){const a=await api('/api/auth/status');pwb.style.display=a.public?'none':'';pwb.textContent=a.has_password?'🔒 Cambiar contraseña':'🔒 Acceso fuera de casa'}
+async function agentInfo(){if(!window.bunkerAgent)return;try{const i=await window.bunkerAgent.status();ag.innerHTML=`<span style="color:#22c55e">●</span> Esta PC: ${i.active} fuentes activas${i.error?'<br><span style="color:#f87171">'+esc(i.error)+'</span>':''}`}catch(e){}}
+authCheck();agentInfo();setInterval(agentInfo,5000);
 loadStats().then(reload);setInterval(loadStats,15000);
 </script>
 </body>

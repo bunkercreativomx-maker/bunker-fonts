@@ -1,7 +1,7 @@
 """Bunker Fonts — servidor de fuentes (índice, vista previa, colecciones, Google Fonts)."""
-import os, re, io, time, json, sqlite3, hashlib, threading, subprocess, zipfile, datetime, logging, collections, shutil
-from fastapi import FastAPI, HTTPException, Body
-from fastapi.responses import FileResponse, Response, StreamingResponse, HTMLResponse
+import os, re, io, time, json, sqlite3, hashlib, hmac, secrets, threading, subprocess, zipfile, datetime, logging, collections, shutil
+from fastapi import FastAPI, HTTPException, Body, Request
+from fastapi.responses import FileResponse, Response, StreamingResponse, HTMLResponse, JSONResponse
 
 FONTS = os.environ.get("FONTS_DIR", "/fonts")
 STORE = os.environ.get("STORE_DIR", "/store")
@@ -296,8 +296,15 @@ def get_face(fid):
     return dict(r)
 
 
-def full_path(fid):
+def full_path(fid, desktop=False):
     f = get_face(fid)
+    if desktop and f["fmt"] in ("woff", "woff2"):
+        out = os.path.join(CACHE, "sfnt", fid + ".ttf")
+        if not os.path.exists(out):
+            from fontTools.ttLib import TTFont
+            os.makedirs(os.path.dirname(out), exist_ok=True)
+            tt = TTFont(f["path"]); tt.flavor = None; tt.save(out + ".tmp"); os.rename(out + ".tmp", out)
+        return out, "ttf"
     if f["fmt"] in ("ttc", "otc"):
         out = os.path.join(CACHE, "ttc", fid + ".ttf")
         if not os.path.exists(out):
@@ -331,6 +338,83 @@ CACHE_HDR = {"Cache-Control": "public, max-age=31536000, immutable", "Access-Con
 
 app = FastAPI(title="Bunker Fonts")
 
+# ---------------- acceso fuera de casa ----------------
+# Dentro de casa / Tailscale: libre. Desde internet (llega por Cloudflare, trae cf-connecting-ip):
+# exige contraseña; si todavía no hay contraseña, se bloquea todo (fail-closed).
+AUTH = os.path.join(STORE, "auth.json")
+
+
+def auth_cfg():
+    try:
+        return json.load(open(AUTH))
+    except Exception:
+        return {}
+
+
+def is_public(req: Request):
+    return "cf-connecting-ip" in req.headers
+
+
+def token_ok(req: Request):
+    cfg = auth_cfg()
+    tok = req.cookies.get("bf_auth") or ""
+    h = req.headers.get("authorization", "")
+    if h.lower().startswith("bearer "):
+        tok = h[7:].strip()
+    return bool(cfg.get("token")) and hmac.compare_digest(tok, cfg["token"])
+
+
+OPEN_PATHS = ("/login", "/api/login", "/api/auth/status")
+
+
+@app.middleware("http")
+async def guard(req: Request, call_next):
+    if is_public(req) and req.url.path not in OPEN_PATHS and not token_ok(req):
+        if req.url.path == "/":
+            return FileResponse(os.path.join(HERE, "static", "login.html"), headers={"Cache-Control": "no-cache"})
+        return JSONResponse({"error": "auth"}, status_code=401)
+    return await call_next(req)
+
+
+def pw_hash(pw, salt):
+    return hashlib.pbkdf2_hmac("sha256", pw.encode(), bytes.fromhex(salt), 200_000).hex()
+
+
+@app.get("/api/auth/status")
+def auth_status(req: Request):
+    return {"has_password": bool(auth_cfg().get("hash")), "public": is_public(req), "ok": (not is_public(req)) or token_ok(req)}
+
+
+@app.post("/api/auth/set")
+def auth_set(req: Request, body: dict = Body(...)):
+    if is_public(req):
+        raise HTTPException(403, "Solo se puede cambiar desde casa o Tailscale")
+    pw = (body.get("password") or "")
+    if len(pw) < 8:
+        raise HTTPException(400, "Mínimo 8 caracteres")
+    salt = secrets.token_hex(16)
+    cfg = {"salt": salt, "hash": pw_hash(pw, salt), "token": secrets.token_urlsafe(32)}
+    tmp = AUTH + ".tmp"; json.dump(cfg, open(tmp, "w")); os.chmod(tmp, 0o600); os.replace(tmp, AUTH)
+    return {"ok": True}
+
+
+_fails = collections.deque(maxlen=50)
+
+
+@app.post("/api/login")
+def login(req: Request, body: dict = Body(...)):
+    nowt = time.time()
+    if sum(1 for t in _fails if nowt - t < 600) >= 10:
+        raise HTTPException(429, "Demasiados intentos, espera 10 minutos")
+    cfg = auth_cfg()
+    pw = body.get("password") or ""
+    if not cfg.get("hash") or not hmac.compare_digest(pw_hash(pw, cfg["salt"]), cfg["hash"]):
+        _fails.append(nowt); time.sleep(1)
+        raise HTTPException(401, "Contraseña incorrecta")
+    r = JSONResponse({"token": cfg["token"]})
+    r.set_cookie("bf_auth", cfg["token"], max_age=3600 * 24 * 365, httponly=True, samesite="lax", secure=is_public(req))
+    return r
+
 
 @app.on_event("startup")
 def _start():
@@ -344,8 +428,8 @@ def home():
 
 
 @app.get("/f/{fid}")
-def font_full(fid: str):
-    p, fmt = full_path(fid)
+def font_full(fid: str, desktop: int = 0):
+    p, fmt = full_path(fid, bool(desktop))
     return FileResponse(p, media_type=MIME.get(fmt, "application/octet-stream"), headers=CACHE_HDR)
 
 
@@ -540,9 +624,10 @@ def manifest():
     con.close()
     out = []
     for r in rows:
-        ext = "ttf" if r["fmt"] in ("ttc", "otc") else r["fmt"]
+        conv = r["fmt"] in ("ttc", "otc", "woff", "woff2")
+        ext = "ttf" if conv else r["fmt"]
         base = os.path.splitext(os.path.basename(r["path"]))[0]
         name = f"{base}-{r['idx']}.{ext}" if r["fmt"] in ("ttc", "otc") else f"{base}.{ext}"
         out.append({"id": r["id"], "family": r["family"], "family_id": r["fam"], "file": name,
-                    "hash": r["hash"], "url": f"/f/{r['id']}"})
+                    "hash": r["hash"], "url": f"/f/{r['id']}?desktop=1"})
     return {"generated": now_iso(), "fonts": out}

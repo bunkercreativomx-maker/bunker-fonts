@@ -1,0 +1,41 @@
+{
+  "name": "bunker-fonts",
+  "version": "1.0.0",
+  "description": "Bunker Fonts - activa tus fuentes del servidor en todas tus computadoras",
+  "main": "main.js",
+  "author": "Bunker Creativo",
+  "license": "UNLICENSED",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder"
+  },
+  "dependencies": {
+    "electron-updater": "^6.8.9",
+    "koffi": "^2.14.0"
+  },
+  "devDependencies": {
+    "electron": "^44.0.0",
+    "electron-builder": "^26.15.3"
+  },
+  "build": {
+    "appId": "mx.bunkercreativo.fonts",
+    "productName": "Bunker Fonts",
+    "asar": false,
+    "files": ["main.js", "preload.js", "settings.html", "offline.html", "build/icon.png", "package.json"],
+    "win": {
+      "target": "nsis",
+      "icon": "build/icon.png",
+      "artifactName": "BunkerFonts-Setup-${version}.${ext}"
+    },
+    "nsis": { "oneClick": true, "perMachine": false, "runAfterFinish": true },
+    "linux": {
+      "target": ["AppImage"],
+      "category": "Graphics",
+      "icon": "build/icon.png",
+      "maintainer": "Bunker Creativo",
+      "artifactName": "BunkerFonts-${version}.${ext}"
+    },
+    "directories": { "output": "dist" },
+    "publish": [{ "provider": "github", "owner": "bunkercreativomx-maker", "repo": "bunker-fonts" }]
+  }
+}

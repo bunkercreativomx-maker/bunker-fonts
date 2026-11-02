@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bunker Fonts</title>
+<style>
+body{margin:0;min-height:100vh;display:grid;place-items:center;background:#131315;font:15px system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:#eee}
+form{background:#1d1d21;padding:30px;border-radius:14px;width:min(340px,90vw);display:grid;gap:14px}
+h1{margin:0;font-size:19px;display:flex;gap:8px;align-items:center}h1 b{background:#8b5cf6;border-radius:6px;padding:1px 7px}
+input{background:#131315;border:1px solid #333;color:#fff;border-radius:8px;padding:11px;font-size:15px}
+button{background:#8b5cf6;color:#fff;border:0;border-radius:8px;padding:11px;font-size:15px;cursor:pointer}
+#e{color:#f87171;font-size:13px;min-height:16px}
+</style></head><body>
+<form id="f"><h1><b>B</b> Bunker Fonts</h1>
+<input type="password" id="p" placeholder="Contraseña" autofocus autocomplete="current-password">
+<button>Entrar</button><div id="e"></div></form>
+<script>
+document.getElementById('f').onsubmit=async e=>{e.preventDefault();
+ const r=await fetch('/api/login',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({password:document.getElementById('p').value})});
+ if(r.ok)location.reload();else{const j=await r.json().catch(()=>({}));document.getElementById('e').textContent=j.detail||'Contraseña incorrecta'}};
+</script></body></html>

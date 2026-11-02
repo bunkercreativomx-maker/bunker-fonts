@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><title>Configuración — Bunker Fonts</title>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'unsafe-inline'">
+<style>
+body{margin:0;padding:24px;background:#131315;color:#eee;font:14px system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+h1{font-size:17px;margin:0 0 18px;display:flex;gap:8px;align-items:center}h1 b{background:#8b5cf6;border-radius:6px;padding:1px 7px}
+label{display:block;color:#a9a9b2;font-size:12px;margin:14px 0 6px}
+input{width:100%;box-sizing:border-box;background:#1d1d21;border:1px solid #333;color:#fff;border-radius:8px;padding:10px;font-size:14px}
+p{color:#77777f;font-size:12px;margin:6px 0 0}
+button{margin-top:20px;background:#8b5cf6;color:#fff;border:0;border-radius:8px;padding:10px 18px;font-size:14px;cursor:pointer}
+#m{margin-top:12px;font-size:13px;min-height:18px}
+</style></head><body>
+<h1><b>B</b> Bunker Fonts</h1>
+<label>Dirección del servidor</label>
+<input id="s" placeholder="http://100.124.180.112:8099">
+<p>En casa o con Tailscale: http://100.124.180.112:8099 · Desde cualquier lugar: https://fonts.bunkeragent.cloud</p>
+<label>Contraseña (solo para acceso fuera de casa)</label>
+<input id="p" type="password" placeholder="Déjala vacía si no cambia">
+<button id="b">Guardar y conectar</button>
+<div id="m"></div><p id="v"></p>
+<script>
+const $=id=>document.getElementById(id);
+bunkerAgent.getConfig().then(c=>{$('s').value=c.server;$('v').textContent='Versión '+c.version+(c.hasToken?' · contraseña guardada':'')});
+$('b').onclick=async()=>{$('m').style.color='#a9a9b2';$('m').textContent='Conectando…';
+  const r=await bunkerAgent.saveConfig({server:$('s').value,password:$('p').value});
+  $('m').style.color=r.ok?'#22c55e':'#f87171';$('m').textContent=r.ok?'✓ Conectado':('⚠ '+(r.error||'No se pudo conectar'))};
+</script></body></html>

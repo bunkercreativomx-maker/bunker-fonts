@@ -1,0 +1,70 @@
+name: Release agent
+
+# Builds the Bunker Fonts desktop agent (Windows .exe + Linux .AppImage) on tag vX.Y.Z
+# (tag must equal agent/package.json version). One final job publishes ONE release.
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+defaults:
+  run:
+    working-directory: agent
+
+jobs:
+  verify-version:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          PKG=$(node -p "require('./package.json').version")
+          if [ "${{ github.event_name }}" = "push" ] && [ "$PKG" != "${GITHUB_REF_NAME#v}" ]; then
+            echo "::error::package.json $PKG != tag $GITHUB_REF_NAME"; exit 1; fi
+
+  build-windows:
+    needs: verify-version
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 24, cache: npm, cache-dependency-path: agent/package-lock.json }
+      - run: npm ci
+      - run: npx electron-builder --win nsis --publish never
+      - shell: bash
+        run: mkdir -p out && cp dist/*.exe dist/*.blockmap dist/latest.yml out/ && ls -la out
+      - uses: actions/upload-artifact@v4
+        with: { name: win, path: agent/out/*, if-no-files-found: error }
+
+  build-linux:
+    needs: verify-version
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 24, cache: npm, cache-dependency-path: agent/package-lock.json }
+      - run: npm ci
+      - run: sudo apt-get update && sudo apt-get install -y libfuse2
+      - run: npx electron-builder --linux AppImage --publish never
+      - run: mkdir -p out && cp dist/*.AppImage dist/latest-linux.yml out/ && ls -la out
+      - uses: actions/upload-artifact@v4
+        with: { name: linux, path: agent/out/*, if-no-files-found: error }
+
+  publish:
+    needs: [build-windows, build-linux]
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: .
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with: { path: assets, merge-multiple: true }
+      - env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          if gh release view "$TAG" >/dev/null 2>&1; then gh release upload "$TAG" assets/* --clobber
+          else gh release create "$TAG" assets/* --title "Bunker Fonts $TAG" --notes "Windows: BunkerFonts-Setup .exe · Linux: .AppImage"; fi
